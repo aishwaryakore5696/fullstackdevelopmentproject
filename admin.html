@@ -1,0 +1,182 @@
+    <script type="text/javascript" src="lib/axios/dist/axios.standalone.js"></script>
+    <script type="text/javascript" src="lib/CryptoJS/rollups/hmac-sha256.js"></script>
+    <script type="text/javascript" src="lib/CryptoJS/rollups/sha256.js"></script>
+    <script type="text/javascript" src="lib/CryptoJS/components/hmac.js"></script>
+    <script type="text/javascript" src="lib/CryptoJS/components/enc-base64.js"></script>
+    <script type="text/javascript" src="lib/url-template/url-template.js"></script>
+    <script type="text/javascript" src="lib/apiGatewayCore/sigV4Client.js"></script>
+    <script type="text/javascript" src="lib/apiGatewayCore/apiGatewayClient.js"></script>
+    <script type="text/javascript" src="lib/apiGatewayCore/simpleHttpClient.js"></script>
+    <script type="text/javascript" src="lib/apiGatewayCore/utils.js"></script>
+    <script type="text/javascript" src="apigClient.js"></script>
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<style>
+	body {background-color: lightgrey;}
+	.title{
+  width:100%;
+  height: 10%;
+  background-color:blue;
+  color:white;
+  vertical-align: center;
+  horizontal-align:center;
+  text-align:center;
+  font-size:28px;
+}
+.maindiv{
+  margin-left: 10%;
+}
+</style>
+
+<body>
+
+<div class="title">
+   <h1>Welcome Admin</h1>
+</div>
+<div class="maindiv">
+<br /><br /><br /><br />
+ <form>
+ 
+  <label><h3>Email Id</h3></label>
+  
+  <input type="text" placeholder="Enter Email" id="email"></input>
+  <br />
+  <br />
+  <button class="btn btn-success" onclick="Activate()">Activate</button>
+  <button class="btn btn-danger" onclick="Deactivate()">Deactivate</button>
+<br />
+<br />
+<label><h3>Tableau Page Access:</h3></label>
+	<select id="Page1">
+	  <option value="true">1</option>
+	  <option value="false">0</option>
+	</select>
+<label><h3>Social Media Page Access:</h3></label>
+	<select id="Page2">
+	  <option value="true">1</option>
+	  <option value="false">0</option>
+	</select>
+<br />
+<br />
+<button class="btn btn-success" onclick="userPermissions()">Alter Permissions</button>
+<br />
+<br />
+<br />
+<br />	
+<button type="button" onclick="ShowUserDetails()">ShowUserDetails</button>
+<br />
+<br />
+<table style="width:50%" id="myTable">
+  <tr>
+    <th>Email Id</th>
+    <th>Status</th>
+    <th>Tableau Page Permission</th>
+    <th>Social Media Page Permission</th>
+  </tr>
+</table>
+</form>
+</div>
+<script type="text/javascript">
+var apigClient = apigClientFactory.newClient();
+	function ShowUserDetails(){
+		var email=document.getElementById("email").value;
+		var params = {};
+		var additionalParams = {
+   		 headers: {   },
+    	 queryParams: {  }
+		};
+		var obj = {"email":email,"status":"SHOW","page1Permission":"","page2Permission":""};
+		var body = JSON.stringify(obj);
+		apigClient.adminPost(params,body,additionalParams).then(function(result){
+		  
+		  for (var el in result.data.body) 
+		  {
+  			var table = document.getElementById("myTable");
+ 			 var row = table.insertRow(1);
+			  var cell1 = row.insertCell(0);
+			  var cell2 = row.insertCell(1);
+			  var cell3 = row.insertCell(2);
+			  var cell4= row.insertCell(3);
+			  cell1.innerHTML = result.data.body[el].email;
+			  cell2.innerHTML = result.data.body[el].status;
+			  cell3.innerHTML = result.data.body[el].page1Permission;
+			  cell4.innerHTML = result.data.body[el].page2Permission;
+		  }
+		  
+	});
+}
+	function Activate(){
+		var email=document.getElementById("email").value;
+		var params = {};
+		var additionalParams = {
+   		 headers: {   },
+    	 queryParams: {  }
+		};
+		var obj = {"email":email,"status":"ACTIVE","page1Permission":"","page2Permission":""};
+		var body = JSON.stringify(obj);
+		apigClient.adminPost(params,body,additionalParams).then(function(result){
+		if(result.data.statusCode===200){
+			alert("Activated");
+			console.log(result.data.statusCode);
+		}
+		else{
+			alert("There was an issue please try again later");
+		}
+		});
+		alert("Changes done");
+
+	}
+	function Deactivate(){
+		var email=document.getElementById("email").value;
+		var params = {};
+		var additionalParams = {
+   		 headers: {   },
+    	 queryParams: {  }
+		};
+		var obj = {"email":email,"status":"INACTIVE","page1Permission":"","page2Permission":""};
+		var body = JSON.stringify(obj);
+		apigClient.adminPost(params,body,additionalParams).then(function(result){
+		if(result.data.statusCode===200){
+			alert("Deactivated");
+			console.log(result.data.statusCode);
+		}
+		else{
+			alert("There was an issue please try again later");
+		}
+		});
+		alert("Changes done");
+	}
+	function userPermissions(){
+		var email=document.getElementById("email").value;
+		var page1=document.getElementById("Page1").value;
+		var page2=document.getElementById("Page2").value;
+		var params = {};
+		var additionalParams = {
+   		 headers: {   },
+    	 queryParams: {  }
+		};
+		var obj = {"email":email,"status":"pagepermissions","page1Permission":page1,"page2Permission":page2};
+		var body = JSON.stringify(obj);
+		apigClient.adminPost(params,body,additionalParams).then(function(result){
+		if(result.data.statusCode===200){
+			alert("Changed Permissions");
+			console.log(result.data.statusCode);
+		}
+		else{
+			alert("There was an issue please try again later");
+		}
+		});
+		alert("Changes done");
+
+	}
+</script>
+</body>
+</html>
+
